@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: CoRi7la
+  datasource:
+    url: jdbc:postgresql://localhost:5434/cori7la
+    username: cori7la
+    password: ${CORI7LA_DB_PASSWORD:cori7la_dev}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
