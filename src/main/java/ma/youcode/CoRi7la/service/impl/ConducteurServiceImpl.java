@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -71,5 +72,18 @@ public class ConducteurServiceImpl implements ConducteurService {
                 ));
 
         return mapper.toResponse(conducteur);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ConducteurResponse> rechercher(String nom, String email) {
+
+        String nomFiltre = nom == null ? "" : nom.strip();
+        String emailFiltre = email == null ? "" : email.strip();
+
+        return repository.rechercher(nomFiltre, emailFiltre)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 }
