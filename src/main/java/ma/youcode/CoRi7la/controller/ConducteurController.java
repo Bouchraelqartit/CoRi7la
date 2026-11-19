@@ -34,4 +34,11 @@ public class ConducteurController {
 
         return ResponseEntity.created(location).body(response);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ConducteurResponse> consulterParId(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(service.consulterParId(id));
+    }
 }

@@ -8,6 +8,7 @@ import ma.youcode.CoRi7la.mapper.ConducteurMapper;
 import ma.youcode.CoRi7la.repository.ConducteurRepository;
 import ma.youcode.CoRi7la.service.ConducteurService;
 import org.slf4j.Logger;
+import ma.youcode.CoRi7la.exception.ResourceNotFoundException;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,5 +59,17 @@ public class ConducteurServiceImpl implements ConducteurService {
         log.info("Création du conducteur id={}", conducteurEnregistre.getId());
 
         return mapper.toResponse(conducteurEnregistre);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ConducteurResponse consulterParId(Long id) {
+
+        Conducteur conducteur = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Conducteur introuvable avec l'id " + id
+                ));
+
+        return mapper.toResponse(conducteur);
     }
 }
