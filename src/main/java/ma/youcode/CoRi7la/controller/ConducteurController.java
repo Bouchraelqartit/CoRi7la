@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/conducteurs")
@@ -40,5 +41,21 @@ public class ConducteurController {
             @PathVariable Long id) {
 
         return ResponseEntity.ok(service.consulterParId(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ConducteurResponse>> rechercher(
+            @RequestParam(required = false) String nom,
+            @RequestParam(required = false) String email) {
+
+        return ResponseEntity.ok(service.rechercher(nom, email));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ConducteurResponse> modifier(
+            @PathVariable Long id,
+            @Valid @RequestBody ConducteurRequest request) {
+
+        return ResponseEntity.ok(service.modifier(id, request));
     }
 }

@@ -86,4 +86,41 @@ public class ConducteurServiceImpl implements ConducteurService {
                 .map(mapper::toResponse)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public ConducteurResponse modifier(Long id, ConducteurRequest request) {
+
+        Conducteur conducteur = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Conducteur introuvable avec l'id " + id
+                ));
+
+        String email = request.email().strip().toLowerCase(Locale.ROOT);
+        String numeroPermis = request.numeroPermis().strip();
+
+        if (repository.existsByEmailIgnoreCaseAndIdNot(email, id)) {
+            throw new BusinessConflictException(
+                    "Cet email est déjà utilisé."
+            );
+        }
+
+        if (repository.existsByNumeroPermisAndIdNot(numeroPermis, id)) {
+            throw new BusinessConflictException(
+                    "Ce numéro de permis est déjà utilisé."
+            );
+        }
+
+        conducteur.setNom(request.nom());
+        conducteur.setPrenom(request.prenom());
+        conducteur.setEmail(email);
+        conducteur.setTelephone(request.telephone());
+        conducteur.setNumeroPermis(numeroPermis);
+
+        Conducteur conducteurModifie = repository.save(conducteur);
+
+        log.info("Modification du conducteur id={}", id);
+
+        return mapper.toResponse(conducteurModifie);
+    }
 }

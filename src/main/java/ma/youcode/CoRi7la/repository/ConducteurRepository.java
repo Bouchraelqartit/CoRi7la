@@ -17,6 +17,10 @@ public interface ConducteurRepository extends JpaRepository<Conducteur, Long> {
 
     List<Conducteur> findByNomContainingIgnoreCase(String nom);
 
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByNumeroPermisAndIdNot(String numeroPermis, Long id);
+
     @Query("""
         SELECT c FROM Conducteur c
         WHERE (:nom = ''
