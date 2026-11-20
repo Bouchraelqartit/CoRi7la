@@ -35,4 +35,11 @@ public class TrajetController {
 
         return ResponseEntity.created(location).body(response);
     }
+
+    @GetMapping("/trajets/{id}")
+    public ResponseEntity<TrajetResponse> consulterParId(
+            @PathVariable("id") Long id
+    ) {
+        return ResponseEntity.ok(service.consulterParId(id));
+    }
 }

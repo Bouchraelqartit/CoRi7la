@@ -9,4 +9,6 @@ public interface TrajetService {
             Long conducteurId,
             TrajetPublicationRequest request
     );
+
+    TrajetResponse consulterParId(Long id);
 }

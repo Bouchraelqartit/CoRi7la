@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import ma.youcode.CoRi7la.entity.StatutReservation;
+import ma.youcode.CoRi7la.repository.ReservationRepository;
 
 @Service
 public class TrajetServiceImpl implements TrajetService {
@@ -35,17 +37,20 @@ public class TrajetServiceImpl implements TrajetService {
     private final ConducteurRepository conducteurRepository;
     private final VehiculeRepository vehiculeRepository;
     private final TrajetMapper mapper;
+    private final ReservationRepository reservationRepository;
 
     public TrajetServiceImpl(
             TrajetRepository trajetRepository,
             ConducteurRepository conducteurRepository,
             VehiculeRepository vehiculeRepository,
-            TrajetMapper mapper
+            TrajetMapper mapper,
+            ReservationRepository reservationRepository
     ) {
         this.trajetRepository = trajetRepository;
         this.conducteurRepository = conducteurRepository;
         this.vehiculeRepository = vehiculeRepository;
         this.mapper = mapper;
+        this.reservationRepository = reservationRepository;
     }
 
     @Override
@@ -176,5 +181,25 @@ public class TrajetServiceImpl implements TrajetService {
                 }
             }
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TrajetResponse consulterParId(Long id) {
+        Trajet trajet = trajetRepository.findWithDetailsById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trajet introuvable avec l'id " + id
+                ));
+
+        long placesReservees = reservationRepository.compterPlacesReservees(
+                id,
+                StatutReservation.confirmee
+        );
+
+        int placesRestantes = Math.toIntExact(
+                (long) trajet.getPlacesProposees() - placesReservees
+        );
+
+        return mapper.toResponse(trajet, placesRestantes);
     }
 }
