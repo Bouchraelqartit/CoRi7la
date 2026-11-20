@@ -9,4 +9,5 @@ public interface VehiculeService {
     VehiculeResponse ajouter(Long conducteurId, VehiculeRequest request);
     VehiculeResponse consulterParId(Long id);
     List<VehiculeResponse> listerParConducteur(Long conducteurId);
+    VehiculeResponse modifier(Long id, VehiculeRequest request);
 }

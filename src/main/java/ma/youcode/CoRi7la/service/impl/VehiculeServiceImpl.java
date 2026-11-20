@@ -98,4 +98,37 @@ public class VehiculeServiceImpl implements VehiculeService {
                 .map(mapper::toResponse)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public VehiculeResponse modifier(Long id, VehiculeRequest request) {
+
+        Vehicule vehicule = vehiculeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Véhicule introuvable avec l'id " + id
+                ));
+
+        String immatriculation = request.immatriculation()
+                .strip()
+                .toUpperCase(Locale.ROOT);
+
+        if (vehiculeRepository.existsByImmatriculationIgnoreCaseAndIdNot(
+                immatriculation, id)) {
+            throw new BusinessConflictException(
+                    "Cette immatriculation est déjà utilisée."
+            );
+        }
+
+        vehicule.setMarque(request.marque());
+        vehicule.setModele(request.modele());
+        vehicule.setCouleur(request.couleur());
+        vehicule.setImmatriculation(immatriculation);
+        vehicule.setCapacite(request.capacite());
+
+        Vehicule vehiculeModifie = vehiculeRepository.save(vehicule);
+
+        log.info("Modification du véhicule id={}", id);
+
+        return mapper.toResponse(vehiculeModifie);
+    }
 }

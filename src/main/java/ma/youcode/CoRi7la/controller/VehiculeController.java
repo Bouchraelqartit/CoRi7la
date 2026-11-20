@@ -52,4 +52,12 @@ public class VehiculeController {
                 service.listerParConducteur(conducteurId)
         );
     }
+
+    @PutMapping("/vehicules/{id}")
+    public ResponseEntity<VehiculeResponse> modifier(
+            @PathVariable Long id,
+            @Valid @RequestBody VehiculeRequest request) {
+
+        return ResponseEntity.ok(service.modifier(id, request));
+    }
 }
