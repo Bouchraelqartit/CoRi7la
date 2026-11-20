@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
+import ma.youcode.CoRi7la.repository.TrajetRepository;
 
 @Service
 public class VehiculeServiceImpl implements VehiculeService {
@@ -26,14 +27,18 @@ public class VehiculeServiceImpl implements VehiculeService {
     private final VehiculeRepository vehiculeRepository;
     private final ConducteurRepository conducteurRepository;
     private final VehiculeMapper mapper;
+    private final TrajetRepository trajetRepository;
 
     public VehiculeServiceImpl(
             VehiculeRepository vehiculeRepository,
             ConducteurRepository conducteurRepository,
-            VehiculeMapper mapper) {
+            VehiculeMapper mapper,
+            TrajetRepository trajetRepository) {
+
         this.vehiculeRepository = vehiculeRepository;
         this.conducteurRepository = conducteurRepository;
         this.mapper = mapper;
+        this.trajetRepository = trajetRepository;
     }
 
     @Override
@@ -131,4 +136,26 @@ public class VehiculeServiceImpl implements VehiculeService {
 
         return mapper.toResponse(vehiculeModifie);
     }
+
+    @Override
+    @Transactional
+    public void supprimer(Long id) {
+
+        Vehicule vehicule = vehiculeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Véhicule introuvable avec l'id " + id
+                ));
+
+        if (trajetRepository.existsByVehiculeId(id)) {
+            throw new BusinessConflictException(
+                    "Ce véhicule est associé à un trajet et ne peut pas être supprimé."
+            );
+        }
+
+        vehiculeRepository.delete(vehicule);
+
+        log.info("Suppression du véhicule id={}", id);
+    }
+
+
 }

@@ -10,4 +10,5 @@ public interface VehiculeService {
     VehiculeResponse consulterParId(Long id);
     List<VehiculeResponse> listerParConducteur(Long conducteurId);
     VehiculeResponse modifier(Long id, VehiculeRequest request);
+    void supprimer(Long id);
 }

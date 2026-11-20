@@ -60,4 +60,12 @@ public class VehiculeController {
 
         return ResponseEntity.ok(service.modifier(id, request));
     }
+
+    @DeleteMapping("/vehicules/{id}")
+    public ResponseEntity<Void> supprimer(@PathVariable Long id) {
+
+        service.supprimer(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
