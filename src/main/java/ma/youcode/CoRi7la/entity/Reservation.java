@@ -57,4 +57,40 @@ public class Reservation {
         this.dateReservation = dateReservation;
         this.statut = StatutReservation.confirmee;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Passager getPassager() {
+        return passager;
+    }
+
+    public Trajet getTrajet() {
+        return trajet;
+    }
+
+    public PointArret getPointMontee() {
+        return pointMontee;
+    }
+
+    public PointArret getPointDescente() {
+        return pointDescente;
+    }
+
+    public int getNombrePlaces() {
+        return nombrePlaces;
+    }
+
+    public BigDecimal getMontantTotal() {
+        return montantTotal;
+    }
+
+    public LocalDateTime getDateReservation() {
+        return dateReservation;
+    }
+
+    public StatutReservation getStatut() {
+        return statut;
+    }
 }
