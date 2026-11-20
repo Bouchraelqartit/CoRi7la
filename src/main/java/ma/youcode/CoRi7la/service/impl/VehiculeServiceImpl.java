@@ -1,0 +1,72 @@
+package ma.youcode.CoRi7la.service.impl;
+
+import ma.youcode.CoRi7la.dto.VehiculeRequest;
+import ma.youcode.CoRi7la.dto.VehiculeResponse;
+import ma.youcode.CoRi7la.entity.Conducteur;
+import ma.youcode.CoRi7la.entity.Vehicule;
+import ma.youcode.CoRi7la.exception.BusinessConflictException;
+import ma.youcode.CoRi7la.exception.ResourceNotFoundException;
+import ma.youcode.CoRi7la.mapper.VehiculeMapper;
+import ma.youcode.CoRi7la.repository.ConducteurRepository;
+import ma.youcode.CoRi7la.repository.VehiculeRepository;
+import ma.youcode.CoRi7la.service.VehiculeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
+
+@Service
+public class VehiculeServiceImpl implements VehiculeService {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(VehiculeServiceImpl.class);
+
+    private final VehiculeRepository vehiculeRepository;
+    private final ConducteurRepository conducteurRepository;
+    private final VehiculeMapper mapper;
+
+    public VehiculeServiceImpl(
+            VehiculeRepository vehiculeRepository,
+            ConducteurRepository conducteurRepository,
+            VehiculeMapper mapper) {
+        this.vehiculeRepository = vehiculeRepository;
+        this.conducteurRepository = conducteurRepository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    @Transactional
+    public VehiculeResponse ajouter(
+            Long conducteurId,
+            VehiculeRequest request) {
+
+        Conducteur conducteur = conducteurRepository.findById(conducteurId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Conducteur introuvable avec l'id " + conducteurId
+                ));
+
+        String immatriculation = request.immatriculation()
+                .strip()
+                .toUpperCase(Locale.ROOT);
+
+        if (vehiculeRepository.existsByImmatriculationIgnoreCase(
+                immatriculation)) {
+            throw new BusinessConflictException(
+                    "Cette immatriculation est déjà utilisée."
+            );
+        }
+
+        Vehicule vehicule = mapper.toEntity(request);
+        vehicule.setImmatriculation(immatriculation);
+        vehicule.setConducteur(conducteur);
+
+        Vehicule vehiculeEnregistre = vehiculeRepository.save(vehicule);
+
+        log.info("Création du véhicule id={} pour le conducteur id={}",
+                vehiculeEnregistre.getId(), conducteurId);
+
+        return mapper.toResponse(vehiculeEnregistre);
+    }
+}
