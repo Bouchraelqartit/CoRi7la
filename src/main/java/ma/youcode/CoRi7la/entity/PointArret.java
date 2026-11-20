@@ -48,4 +48,24 @@ public class PointArret {
     void setTrajet(Trajet trajet) {
         this.trajet = trajet;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getVille() {
+        return ville;
+    }
+
+    public int getOrdre() {
+        return ordre;
+    }
+
+    public LocalDateTime getHeurePassage() {
+        return heurePassage;
+    }
+
+    public BigDecimal getPrixDepuisDepart() {
+        return prixDepuisDepart;
+    }
 }

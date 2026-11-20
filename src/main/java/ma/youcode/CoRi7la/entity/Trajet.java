@@ -55,4 +55,32 @@ public class Trajet {
         pointsArret.add(point);
         point.setTrajet(this);
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Conducteur getConducteur() {
+        return conducteur;
+    }
+
+    public Vehicule getVehicule() {
+        return vehicule;
+    }
+
+    public LocalDateTime getDateDepart() {
+        return dateDepart;
+    }
+
+    public int getPlacesProposees() {
+        return placesProposees;
+    }
+
+    public StatutTrajet getStatut() {
+        return statut;
+    }
+
+    public List<PointArret> getPointsArret() {
+        return List.copyOf(pointsArret);
+    }
 }
