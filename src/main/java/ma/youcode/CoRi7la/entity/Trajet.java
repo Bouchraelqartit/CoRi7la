@@ -83,4 +83,14 @@ public class Trajet {
     public List<PointArret> getPointsArret() {
         return List.copyOf(pointsArret);
     }
+
+    public void marquerComplet() {
+        if (statut != StatutTrajet.publie) {
+            throw new IllegalStateException(
+                    "Seul un trajet publié peut devenir complet."
+            );
+        }
+
+        statut = StatutTrajet.complet;
+    }
 }

@@ -19,4 +19,10 @@ public interface ReservationRepository
             @Param("trajetId") Long trajetId,
             @Param("statut") StatutReservation statut
     );
+
+    boolean existsByPassagerIdAndTrajetIdAndStatut(
+            Long passagerId,
+            Long trajetId,
+            StatutReservation statut
+    );
 }
