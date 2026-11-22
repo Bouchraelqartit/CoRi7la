@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class ReservationController {
@@ -29,5 +31,12 @@ public class ReservationController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @GetMapping("/passagers/{passagerId}/reservations")
+    public ResponseEntity<List<ReservationResponse>> listerParPassager(
+            @PathVariable("passagerId") Long passagerId
+    ) {
+        return ResponseEntity.ok(service.listerParPassager(passagerId));
     }
 }

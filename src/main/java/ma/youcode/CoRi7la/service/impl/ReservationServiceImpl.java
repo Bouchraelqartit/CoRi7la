@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -183,5 +184,21 @@ public class ReservationServiceImpl implements ReservationService {
         );
 
         return mapper.toResponse(reservationEnregistree);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> listerParPassager(Long passagerId) {
+        if (!passagerRepository.existsById(passagerId)) {
+            throw new ResourceNotFoundException(
+                    "Passager introuvable avec l'id " + passagerId
+            );
+        }
+
+        return reservationRepository
+                .findByPassagerIdOrderByDateReservationDescIdDesc(passagerId)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 }

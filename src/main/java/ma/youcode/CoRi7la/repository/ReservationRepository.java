@@ -5,6 +5,8 @@ import ma.youcode.CoRi7la.entity.StatutReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.EntityGraph;
+import java.util.List;
 
 public interface ReservationRepository
         extends JpaRepository<Reservation, Long> {
@@ -24,5 +26,15 @@ public interface ReservationRepository
             Long passagerId,
             Long trajetId,
             StatutReservation statut
+    );
+
+    @EntityGraph(attributePaths = {
+            "passager",
+            "trajet",
+            "pointMontee",
+            "pointDescente"
+    })
+    List<Reservation> findByPassagerIdOrderByDateReservationDescIdDesc(
+            Long passagerId
     );
 }
