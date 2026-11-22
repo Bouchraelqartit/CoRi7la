@@ -110,4 +110,17 @@ public class Trajet {
 
         statut = StatutTrajet.annule;
     }
+
+    public void terminer() {
+        if (statut != StatutTrajet.publie
+                && statut != StatutTrajet.complet) {
+            throw new IllegalStateException(
+                    "Seul un trajet publié ou complet peut être terminé."
+            );
+        }
+
+        statut = StatutTrajet.termine;
+    }
+
+
 }

@@ -244,5 +244,52 @@ public class TrajetServiceImpl implements TrajetService {
         return mapper.toResponse(trajet, trajet.getPlacesProposees());
     }
 
+    @Override
+    @Transactional
+    public TrajetResponse terminer(Long conducteurId, Long trajetId) {
+        Trajet trajet = trajetRepository.findByIdForUpdate(trajetId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trajet introuvable avec l'id " + trajetId
+                ));
+
+        if (!trajet.getConducteur().getId().equals(conducteurId)) {
+            throw new ForbiddenActionException(
+                    "Ce trajet n'appartient pas à ce conducteur."
+            );
+        }
+
+        if (trajet.getStatut() != StatutTrajet.publie
+                && trajet.getStatut() != StatutTrajet.complet) {
+            throw new BusinessConflictException(
+                    "Un trajet terminé ou annulé ne peut plus être terminé."
+            );
+        }
+
+        if (!LocalDateTime.now().isAfter(trajet.getDateDepart())) {
+            throw new BusinessConflictException(
+                    "Le trajet ne peut être terminé qu'après son heure de départ."
+            );
+        }
+
+        trajet.terminer();
+
+        long placesReservees = reservationRepository.compterPlacesReservees(
+                trajetId,
+                StatutReservation.confirmee
+        );
+
+        int placesRestantes = Math.toIntExact(
+                (long) trajet.getPlacesProposees() - placesReservees
+        );
+
+        log.info(
+                "Trajet id={} terminé par le conducteur id={}",
+                trajetId,
+                conducteurId
+        );
+
+        return mapper.toResponse(trajet, placesRestantes);
+    }
+
 
 }

@@ -52,4 +52,14 @@ public class TrajetController {
                 service.annuler(conducteurId, trajetId)
         );
     }
+
+    @PatchMapping("/conducteurs/{conducteurId}/trajets/{trajetId}/terminaison")
+    public ResponseEntity<TrajetResponse> terminer(
+            @PathVariable("conducteurId") Long conducteurId,
+            @PathVariable("trajetId") Long trajetId
+    ) {
+        return ResponseEntity.ok(
+                service.terminer(conducteurId, trajetId)
+        );
+    }
 }

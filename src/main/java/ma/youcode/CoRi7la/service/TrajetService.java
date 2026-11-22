@@ -13,4 +13,6 @@ public interface TrajetService {
     TrajetResponse consulterParId(Long id);
 
     TrajetResponse annuler(Long conducteurId, Long trajetId);
+
+    TrajetResponse terminer(Long conducteurId, Long trajetId);
 }
