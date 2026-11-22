@@ -39,4 +39,16 @@ public class ReservationController {
     ) {
         return ResponseEntity.ok(service.listerParPassager(passagerId));
     }
+
+    @GetMapping("/conducteurs/{conducteurId}/trajets/{trajetId}/reservations")
+    public ResponseEntity<List<ReservationResponse>> listerParTrajetConducteur(
+            @PathVariable("conducteurId") Long conducteurId,
+            @PathVariable("trajetId") Long trajetId
+    ) {
+        return ResponseEntity.ok(
+                service.listerParTrajetConducteur(conducteurId, trajetId)
+        );
+    }
+
+
 }

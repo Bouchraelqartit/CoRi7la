@@ -4,6 +4,7 @@ import ma.youcode.CoRi7la.dto.ReservationRequest;
 import ma.youcode.CoRi7la.dto.ReservationResponse;
 import ma.youcode.CoRi7la.entity.*;
 import ma.youcode.CoRi7la.exception.BusinessConflictException;
+import ma.youcode.CoRi7la.exception.ForbiddenActionException;
 import ma.youcode.CoRi7la.exception.InvalidRequestException;
 import ma.youcode.CoRi7la.exception.ResourceNotFoundException;
 import ma.youcode.CoRi7la.mapper.ReservationMapper;
@@ -201,4 +202,30 @@ public class ReservationServiceImpl implements ReservationService {
                 .map(mapper::toResponse)
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> listerParTrajetConducteur(
+            Long conducteurId,
+            Long trajetId
+    ) {
+        Trajet trajet = trajetRepository.findById(trajetId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trajet introuvable avec l'id " + trajetId
+                ));
+
+        if (!trajet.getConducteur().getId().equals(conducteurId)) {
+            throw new ForbiddenActionException(
+                    "Ce trajet n'appartient pas à ce conducteur."
+            );
+        }
+
+        return reservationRepository
+                .findByTrajetIdOrderByDateReservationDescIdDesc(trajetId)
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+    }
+
+
 }

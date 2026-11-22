@@ -13,4 +13,9 @@ public interface ReservationService {
     );
 
     List<ReservationResponse> listerParPassager(Long passagerId);
+
+    List<ReservationResponse> listerParTrajetConducteur(
+            Long conducteurId,
+            Long trajetId
+    );
 }

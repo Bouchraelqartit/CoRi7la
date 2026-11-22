@@ -37,4 +37,14 @@ public interface ReservationRepository
     List<Reservation> findByPassagerIdOrderByDateReservationDescIdDesc(
             Long passagerId
     );
+
+    @EntityGraph(attributePaths = {
+            "passager",
+            "trajet",
+            "pointMontee",
+            "pointDescente"
+    })
+    List<Reservation> findByTrajetIdOrderByDateReservationDescIdDesc(
+            Long trajetId
+    );
 }
