@@ -47,4 +47,13 @@ public interface ReservationRepository
     List<Reservation> findByTrajetIdOrderByDateReservationDescIdDesc(
             Long trajetId
     );
+
+    @Query("""
+        SELECT r.trajet.id
+        FROM Reservation r
+        WHERE r.id = :reservationId
+        """)
+    java.util.Optional<Long> trouverTrajetIdParReservationId(
+            @Param("reservationId") Long reservationId
+    );
 }

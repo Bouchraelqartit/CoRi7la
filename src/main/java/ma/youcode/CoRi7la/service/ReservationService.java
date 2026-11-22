@@ -18,4 +18,6 @@ public interface ReservationService {
             Long conducteurId,
             Long trajetId
     );
+
+    ReservationResponse annuler(Long passagerId, Long reservationId);
 }

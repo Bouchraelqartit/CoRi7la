@@ -93,4 +93,14 @@ public class Reservation {
     public StatutReservation getStatut() {
         return statut;
     }
+
+    public void annuler() {
+        if (statut != StatutReservation.confirmee) {
+            throw new IllegalStateException(
+                    "Seule une réservation confirmée peut être annulée."
+            );
+        }
+
+        statut = StatutReservation.annule;
+    }
 }

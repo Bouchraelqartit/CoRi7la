@@ -227,5 +227,67 @@ public class ReservationServiceImpl implements ReservationService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public ReservationResponse annuler(
+            Long passagerId,
+            Long reservationId
+    ) {
+        Long trajetId = reservationRepository
+                .trouverTrajetIdParReservationId(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Réservation introuvable avec l'id " + reservationId
+                ));
+
+        Trajet trajet = trajetRepository.findByIdForUpdate(trajetId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trajet introuvable avec l'id " + trajetId
+                ));
+
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Réservation introuvable avec l'id " + reservationId
+                ));
+
+        if (!reservation.getPassager().getId().equals(passagerId)) {
+            throw new ForbiddenActionException(
+                    "Cette réservation n'appartient pas à ce passager."
+            );
+        }
+
+        if (reservation.getStatut() != StatutReservation.confirmee) {
+            throw new BusinessConflictException(
+                    "Cette réservation est déjà annulée."
+            );
+        }
+
+        if (trajet.getStatut() != StatutTrajet.publie
+                && trajet.getStatut() != StatutTrajet.complet) {
+            throw new BusinessConflictException(
+                    "Il est impossible d'annuler une réservation sur ce trajet."
+            );
+        }
+
+        LocalDateTime limite = trajet.getDateDepart().minusHours(24);
+
+        if (LocalDateTime.now().isAfter(limite)) {
+            throw new BusinessConflictException(
+                    "L'annulation est possible au plus tard 24 heures avant le départ."
+            );
+        }
+
+        reservation.annuler();
+        trajet.rouvrirApresAnnulation();
+
+        log.info(
+                "Annulation de la réservation id={} par le passager id={}, trajet id={}",
+                reservationId,
+                passagerId,
+                trajetId
+        );
+
+        return mapper.toResponse(reservation);
+    }
+
 
 }

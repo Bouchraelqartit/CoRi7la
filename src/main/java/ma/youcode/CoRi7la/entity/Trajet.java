@@ -93,4 +93,10 @@ public class Trajet {
 
         statut = StatutTrajet.complet;
     }
+
+    public void rouvrirApresAnnulation() {
+        if (statut == StatutTrajet.complet) {
+            statut = StatutTrajet.publie;
+        }
+    }
 }
