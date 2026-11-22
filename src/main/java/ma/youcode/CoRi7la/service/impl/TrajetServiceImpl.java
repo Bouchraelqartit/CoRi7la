@@ -22,7 +22,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
+import ma.youcode.CoRi7la.dto.TrajetRechercheResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import ma.youcode.CoRi7la.repository.ReservationRepository;
 
 @Service
@@ -289,6 +293,75 @@ public class TrajetServiceImpl implements TrajetService {
         );
 
         return mapper.toResponse(trajet, placesRestantes);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TrajetRechercheResponse> rechercher(
+            String villeMontee,
+            String villeDescente,
+            LocalDate date,
+            int nombrePlaces,
+            BigDecimal prixMax,
+            int page,
+            int taille
+    ) {
+        if (villeMontee == null || villeMontee.isBlank()
+                || villeDescente == null || villeDescente.isBlank()) {
+            throw new InvalidRequestException(
+                    "Les villes de montée et de descente sont obligatoires."
+            );
+        }
+
+        String montee = villeMontee.strip();
+        String descente = villeDescente.strip();
+
+        if (montee.equalsIgnoreCase(descente)) {
+            throw new InvalidRequestException(
+                    "Les villes de montée et de descente doivent être différentes."
+            );
+        }
+
+        if (date == null) {
+            throw new InvalidRequestException(
+                    "La date de départ est obligatoire."
+            );
+        }
+
+        if (nombrePlaces < 1 || nombrePlaces > 8) {
+            throw new InvalidRequestException(
+                    "Le nombre de places doit être compris entre 1 et 8."
+            );
+        }
+
+        if (prixMax != null && prixMax.signum() < 0) {
+            throw new InvalidRequestException(
+                    "Le prix maximal ne peut pas être négatif."
+            );
+        }
+
+        if (page < 0 || taille < 1 || taille > 100) {
+            throw new InvalidRequestException(
+                    "La page doit être positive ou nulle et la taille comprise entre 1 et 100."
+            );
+        }
+
+        BigDecimal plafond = prixMax == null
+                ? new BigDecimal("99999999.99")
+                : prixMax;
+
+        return trajetRepository.rechercher(
+                montee,
+                descente,
+                date.atStartOfDay(),
+                date.plusDays(1).atStartOfDay(),
+                LocalDateTime.now(),
+                nombrePlaces,
+                plafond,
+                StatutTrajet.publie,
+                StatutReservation.confirmee,
+                PageRequest.of(page, taille)
+        );
     }
 
 
