@@ -3,10 +3,8 @@ package ma.youcode.CoRi7la.service.impl;
 import ma.youcode.CoRi7la.dto.PointArretRequest;
 import ma.youcode.CoRi7la.dto.TrajetPublicationRequest;
 import ma.youcode.CoRi7la.dto.TrajetResponse;
-import ma.youcode.CoRi7la.entity.Conducteur;
-import ma.youcode.CoRi7la.entity.PointArret;
-import ma.youcode.CoRi7la.entity.Trajet;
-import ma.youcode.CoRi7la.entity.Vehicule;
+import ma.youcode.CoRi7la.entity.*;
+import ma.youcode.CoRi7la.exception.BusinessConflictException;
 import ma.youcode.CoRi7la.exception.ForbiddenActionException;
 import ma.youcode.CoRi7la.exception.InvalidRequestException;
 import ma.youcode.CoRi7la.exception.ResourceNotFoundException;
@@ -24,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import ma.youcode.CoRi7la.entity.StatutReservation;
+
 import ma.youcode.CoRi7la.repository.ReservationRepository;
 
 @Service
@@ -202,4 +200,49 @@ public class TrajetServiceImpl implements TrajetService {
 
         return mapper.toResponse(trajet, placesRestantes);
     }
+
+    @Override
+    @Transactional
+    public TrajetResponse annuler(Long conducteurId, Long trajetId) {
+        Trajet trajet = trajetRepository.findByIdForUpdate(trajetId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Trajet introuvable avec l'id " + trajetId
+                ));
+
+        if (!trajet.getConducteur().getId().equals(conducteurId)) {
+            throw new ForbiddenActionException(
+                    "Ce trajet n'appartient pas à ce conducteur."
+            );
+        }
+
+        if (trajet.getStatut() != StatutTrajet.publie
+                && trajet.getStatut() != StatutTrajet.complet) {
+            throw new BusinessConflictException(
+                    "Un trajet terminé ou annulé ne peut plus être annulé."
+            );
+        }
+
+        List<Reservation> reservations = reservationRepository
+                .findByTrajetIdAndStatut(
+                        trajetId,
+                        StatutReservation.confirmee
+                );
+
+        for (Reservation reservation : reservations) {
+            reservation.annuler();
+        }
+
+        trajet.annuler();
+
+        log.info(
+                "Annulation du trajet id={} par le conducteur id={}, réservations annulées={}",
+                trajetId,
+                conducteurId,
+                reservations.size()
+        );
+
+        return mapper.toResponse(trajet, trajet.getPlacesProposees());
+    }
+
+
 }

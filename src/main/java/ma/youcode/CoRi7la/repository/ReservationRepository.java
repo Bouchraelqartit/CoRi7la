@@ -56,4 +56,9 @@ public interface ReservationRepository
     java.util.Optional<Long> trouverTrajetIdParReservationId(
             @Param("reservationId") Long reservationId
     );
+
+    List<Reservation> findByTrajetIdAndStatut(
+            Long trajetId,
+            StatutReservation statut
+    );
 }

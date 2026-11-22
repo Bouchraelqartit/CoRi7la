@@ -99,4 +99,15 @@ public class Trajet {
             statut = StatutTrajet.publie;
         }
     }
+
+    public void annuler() {
+        if (statut != StatutTrajet.publie
+                && statut != StatutTrajet.complet) {
+            throw new IllegalStateException(
+                    "Seul un trajet publié ou complet peut être annulé."
+            );
+        }
+
+        statut = StatutTrajet.annule;
+    }
 }
